@@ -1,5 +1,5 @@
-.generate-random-100mb-zipped-file.ps1 .\data\file-GE.zip
-.generate-random-100mb-zipped-file.ps1 .\data\file-imprimeur.zip
+.\tests\generate-random-100mb-zipped-file.ps1 .\data\file-GE.zip
+.\tests\generate-random-100mb-zipped-file.ps1 .\data\file-imprimeur.zip
 
 .\01-generer-certificat-GE.ps1
 .\02-generer-certificats-Imprimeur.ps1

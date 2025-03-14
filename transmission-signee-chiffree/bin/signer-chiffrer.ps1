@@ -25,7 +25,7 @@ openssl pkcs12 -in $senderKeystore -out $tmp_pem_cert -passin file:$senderKeysto
 
 # Sign and encrypt the file using OpenSSL CMS
 $signedFilePath = "$inputFilePath.der"
-Write-Host "Signature avec $keystore et chiffrement du fichier avec $recipient"
+Write-Host "Signature avec $senderKeystore et chiffrement du fichier avec $recipientCertificate"
 openssl cms -sign -binary -nodetach -md sha256 -in $inputFilePath -signer $tmp_pem_cert -nocerts -outform der -out $signedFilePath -keyopt rsa_padding_mode:pss
 openssl cms -encrypt -binary -aes-256-gcm -aes256-wrap -in $signedFilePath -inform der -out $encryptedFilePath -outform der -recip $recipientCertificate
 

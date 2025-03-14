@@ -1,3 +1,3 @@
 $input = $args[0]
 
-.\bin\signer-chiffrer.ps1 $input -senderKeystore .\certs\direct_trust_keystore_canton.p12 -senderKeystorePasswordPath .\certs\direct_trust_pw_canton.txt -recipientCertificate .\certs\imprimeur-encrypt-cert.pem
+.\bin\signer-chiffrer.ps1 $input -senderKeystore .\certs\ge-sign-keystore.p12 -senderKeystorePasswordPath .\certs\ge-sign-password.txt -recipientCertificate .\certs\imprimeur-encrypt-cert.pem

@@ -19,15 +19,13 @@ Au niveau de l'implémentation, nous utilisons OpenSSL avec le standard CMS (Cry
 
 ## Structure du repository
 
-Le répertoire de base `chiffrement-signature` contient des scripts permettant l'exécution des différentes étapes de
+Le répertoire de base `transmission-signee-chiffree` contient des scripts permettant l'exécution des différentes étapes de
 préparation et de transmission avec des valeurs de paramètre pré-déterminés.
 
 Le répertoire `bin` contient les scripts OpenSSL de base permettant d'exécuter les différentes actions à l'aide de
 paramètres.
 
-Le répertoire `certs` est destiné à contenir les certificats du canton et ceux de l'imprimeur.
-
-Le répertoire `data` contient des fichiers de test.
+Le répertoire `tests` contient le script `run-tests.ps1` permettant de tester l'ensemble des fonctionnalités du processus.
 
 ## Prérequis
 
@@ -35,23 +33,16 @@ Le répertoire `data` contient des fichiers de test.
 
 Le logiciel OpenSSL doit être installé et disponible dans le PATH. Il faut utiliser une version récente supportant `AES-256-GCM`. Pour vérifier, exécuter `openssl list -cipher-algorithms` et rechercher si `AES-256-GCM` apparaît dans les résultats.
 
-### Certificat de signature du canton
+## Etapes du processus de transmission
 
-Les fichiers suivants sont fournis au canton selon un processus de gré à gré par la Poste Suisse:
+### Préparation des certificats de signature et de chiffrement
 
-- Un keystore PKCS#12 qui va permettre la signature du fichier pour l'imprimeur
-- Un fichier contenant le mot de passe de protection du keystore
-- Un certificat public self-signed permettant de contrôler la signature à transmettre à l'imprimeur
+Les certificats suivants doivent être générés:
 
-Ces fichiers doivent être déposés dans le répertoire `certs`.
-
-## Préparation des certificats de signature et de chiffrement
-
-En plus du certificat de signature du canton, 3 autres certificats doivent être générés:
-
-- Un certificat permettant à la Chancellerie de chiffrer les fichiers à destination de l'imprimeur.
+- Un certificat permettant à la Chancellerie de signer les fichiers à destination de l'imprimeur.
+- Un certificat permettant à la Chancellerie de recevoir des fichiers chiffrés à son intention par l'imprimeur.
 - Un certificat permettant à l'imprimeur de signer les fichiers qu'il envoie à la Chancellerie.
-- Un certificat permettant à l'imprimeur de chiffrer les fichiers à destination de la Chancellerie.
+- Un certificat permettant à l'imprimeur de recevoir des fichiers chiffrés à son intention par la Chancellerie.
 
 Ces certificats sont créés à l'aide des deux scripts:
 
@@ -62,26 +53,33 @@ Enfin, les empreintes des certificats sont obtenus à l'aide du script suivant:
 
 - `03-lister-empreintes-certificats.ps1`
 
-## Envoi d'un fichier à l'imprimeur
+### Envoi d'un fichier à l'imprimeur
 
 La commande suivante permet au canton de signer et chiffrer un fichier à envoyer à l'imprimeur:
 
 `04-envoi-GE-Imprimeur.ps1 <chemin vers le fichier à envoyer>`
 
-## Réception du fichier par l'imprimeur
+### Réception du fichier par l'imprimeur
 
 La commande suivante permet à l'imprimeur de déchiffrer le fichier reçu et de vérifier sa signature:
 
 `05-reception-Imprimeur.ps1 <chemin vers le fichier reçu>`
 
-## Envoi d'un fichier au canton
+### Envoi d'un fichier au canton
 
 La commande suivante permet à l'imprimeur de signer et chiffrer un fichier à envoyer au canton:
 
 `06-envoi-Imprimeur-GE.ps1 <chemin vers le fichier à envoyer>`
 
-## Réception du fichier par le canton
+### Réception du fichier par le canton
 
 La commande suivante permet au canton de déchiffrer le fichier reçu et de vérifier sa signature:
 
 `07-reception-GE.ps1 <chemin vers le fichier reçu>`
+
+## Test
+
+Un test complet de la transmission dans les deux sens peut être exécuté en lançant la commande suivante depuis 
+le répertoire `transmission-signee-chiffree`:
+
+`.\tests\run-test.ps1`
