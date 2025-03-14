@@ -1,0 +1,1 @@
+.\bin\generer-certificat.ps1 -outputDir .\certs -baseFilename ge-encrypt -subject /CN=GE
