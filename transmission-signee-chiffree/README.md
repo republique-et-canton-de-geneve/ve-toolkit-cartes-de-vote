@@ -1,8 +1,57 @@
 # Chiffrement et signature des fichiers imprimeur
 
+## Description du processus métier
+
+Le processus de transmission des fichiers permettant l'impression des cartes de vote électronique est régi par l'[Ordonnance de la ChF
+sur le vote électronique](https://www.fedlex.admin.ch/eli/cc/2022/336/fr) et en particulier le [chapitre 7 de son annexe](https://www.fedlex.admin.ch/eli/cc/2022/336/fr#annex_u1/lvl_u1/lvl_7).
+
+```mermaid
+sequenceDiagram
+    autonumber
+
+box PC du Canton - Offline
+Actor C as  Chancellerie
+participant LVE as Logiciel<br/>Vote Electronique
+participant TC as VE Toolkit<br/>Canton
+end
+
+participant PCC as PC du Canton<br/>Online
+participant SAS as SAS Transfert<br/>de fichier
+participant PCI as PC de l'Imprimeur<br/>Online
+
+box PC de l'imprimeur - Offline
+participant TI as VE Toolkit<br/>Imprimeur
+participant LI as Logiciel<br/>d'impression
+Actor I as  Imprimeur
+end
+
+C ->> LVE: Générer le fichier<br/>des cartes de vote
+C ->> TC: Signer et chiffrer le fichier<br/>des cartes de vote
+C ->> PCC: Transfert du fichier<br/>signé et chiffré<br/>par clé USB
+
+PCC ->> SAS: Dépôt sur le SAS Internet<br/>du fichier signé et chiffré
+
+PCI ->> SAS: Téléchargement du<br/>fichier signé et chiffré
+PCI ->> TI: Transfert du fichier signé<br/>et chiffré par clé USB
+I ->> TI: Déchiffrement et vérification<br/>de la signature du fichier
+I ->> LI: Fourniture du fichier des<br/>cartes de vote au<br/>logiciel d'impression
+
+I ->> LI: Générer les<br/>Bons à tirer (BàT)
+I ->> TI: Signer et chiffrer<br/>le fichier des BàT
+I ->> PCI: Transfert du fichier BàT<br/>signé et chiffré par clé USB
+
+PCI ->> SAS: Dépôt sur le SAS Internet<br/>du fichier BàT<br/>signé et chiffré
+
+PCC ->> SAS: Téléchargement du fichier<br/>BàT signé et chiffré
+PCC ->> TC: Transfert du fichier BàT<br/>signé et chiffré<br/>par clé USB
+C ->> TC: Déchiffrement et vérification<br/>de la signature du fichier BàT
+C ->> LVE: Contrôle des BàT
+
+```
+
 ## Concept
 
-Un service en ligne chiffré, authentifié et tracé, fournit par le canton de Genève permet:
+Un service en ligne chiffré, authentifié et tracé, fourni par le canton de Genève permet:
 - au canton d'envoyer les fichiers d'impression des cartes de vote électronique à l'imprimeur;
 - à l'imprimeur d'envoyer les bons à tirer au canton.
 
