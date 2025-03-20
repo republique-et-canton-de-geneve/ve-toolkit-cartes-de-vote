@@ -25,8 +25,14 @@ openssl pkcs12 -in $senderKeystore -out $tmp_pem_cert -passin file:$senderKeysto
 
 # Sign and encrypt the file using OpenSSL CMS
 $signedFilePath = "$inputFilePath.der"
-Write-Host "Signature avec $senderKeystore et chiffrement du fichier avec $recipientCertificate"
+
+
+$thumbprintSender = openssl x509 -in "$tmp_pem_cert" -sha256 -fingerprint -noout
+Write-Host "Signature du fichier $inputFilePath avec $senderKeystore [$thumbprintSender]"
 openssl cms -sign -binary -nodetach -md sha256 -in $inputFilePath -signer $tmp_pem_cert -nocerts -outform der -out $signedFilePath -keyopt rsa_padding_mode:pss
+
+$thumbprintRecipient = openssl x509 -in "$recipientCertificate" -sha256 -fingerprint -noout
+Write-Host "Chiffrement du fichier $signedFilePath avec le certificat $recipientCertificate [$thumbprintRecipient]"
 openssl cms -encrypt -binary -aes-256-gcm -aes256-wrap -in $signedFilePath -inform der -out $encryptedFilePath -outform der -recip $recipientCertificate
 
 # Delete the intermediate files
@@ -34,5 +40,4 @@ Write-Host "Cleanup."
 Remove-Item -Path $tmp_pem_cert -Force
 Remove-Item -Path $signedFilePath -Force
 
-Write-Host "Fichier chiffré et signé avec succès."
-Write-Host "Fichier résultant: $encryptedFilePath"
+Write-Host "Fichier signé et chiffré résultant: $encryptedFilePath"

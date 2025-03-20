@@ -27,11 +27,19 @@ $verifiedFilePath = $basePath -replace ($originalExtension + '$'), "-decrypted$o
 # Get the private key from the recipient keystore
 Write-Host "Extraction de la clé privée du keystore du destinataire."
 $recipientKey = "extracted_recipient_key.tmp.pem"
+$tmp_pem_cert = "extracted_cert.tmp.pem"
 openssl pkcs12 -in $recipientKeystore -out $recipientKey -passin file:$recipientKeystorePasswordPath -nodes -nocerts
+openssl pkcs12 -in $recipientKeystore -out $tmp_pem_cert -passin file:$recipientKeystorePasswordPath -nodes
 
-Write-Host "Déchiffrement et vérification de la signature du fichier."
+
 $decryptedFilePath = [System.IO.Path]::ChangeExtension($encryptedFilePath, ".der")
+
+$thumbprintRecipient = openssl x509 -in $tmp_pem_cert -sha256 -fingerprint -noout
+Write-Host "Déchiffrement du fichier $inputFilePath avec $recipientKeystore [$thumbprintRecipient]"
 openssl cms -decrypt -binary -in $inputFilePath -inkey $recipientKey -inform der -out $decryptedFilePath
+
+$thumbprintSender = openssl x509 -in $senderCertificate -sha256 -fingerprint -noout
+Write-Host "Vérification de la signature du fichier $decryptedFilePath avec $senderCertificate [$thumbprintSender]"
 openssl cms -verify -binary -in $decryptedFilePath -inform der -out $verifiedFilePath -certfile $senderCertificate -CAfile $senderCertificate
 
 # Delete intermediate files
