@@ -24,22 +24,25 @@ $basePath = $encryptedFilePath -replace '\.bin$', ''
 $originalExtension = [System.IO.Path]::GetExtension($basePath)
 $verifiedFilePath = $basePath -replace ($originalExtension + '$'), "-decrypted$originalExtension"
 
-# Get the private key from the recipient keystore
-Write-Host "Extraction de la clé privée du keystore du destinataire."
-$recipientKey = "extracted_recipient_key.tmp.pem"
+# Extract the certificate and private key from the PKCS#12 file to a temporary pem file
+# because openssl cms cannot use a password protected p12 file
 $tmp_pem_cert = "extracted_cert.tmp.pem"
+Write-Host "Conversion du certicat PKCS12 $recipientKeystore en PEM $tmp_pem_cert"
+$recipientKey = "extracted_recipient_key.tmp.pem"
 openssl pkcs12 -in $recipientKeystore -out $recipientKey -passin file:$recipientKeystorePasswordPath -nodes -nocerts
 openssl pkcs12 -in $recipientKeystore -out $tmp_pem_cert -passin file:$recipientKeystorePasswordPath -nodes
 
 
 $decryptedFilePath = [System.IO.Path]::ChangeExtension($encryptedFilePath, ".der")
 
-$thumbprintRecipient = openssl x509 -in $tmp_pem_cert -sha256 -fingerprint -noout
-Write-Host "Déchiffrement du fichier $inputFilePath avec $recipientKeystore [$thumbprintRecipient]"
+Write-Host "Déchiffrement du fichier $inputFilePath"
+Write-Host "   >>> Informations du certificat de déchiffrement"
+& "$PSScriptRoot\infos-certificat.ps1" -certPath $tmp_pem_cert
 openssl cms -decrypt -binary -in $inputFilePath -inkey $recipientKey -inform der -out $decryptedFilePath
 
-$thumbprintSender = openssl x509 -in $senderCertificate -sha256 -fingerprint -noout
-Write-Host "Vérification de la signature du fichier $decryptedFilePath avec $senderCertificate [$thumbprintSender]"
+Write-Host "Vérification de la signature du fichier $decryptedFilePath"
+Write-Host "   >>> Informations du certificat de signature"
+& "$PSScriptRoot\infos-certificat.ps1" -certPath $senderCertificate
 openssl cms -verify -binary -in $decryptedFilePath -inform der -out $verifiedFilePath -certfile $senderCertificate -CAfile $senderCertificate
 
 # Delete intermediate files

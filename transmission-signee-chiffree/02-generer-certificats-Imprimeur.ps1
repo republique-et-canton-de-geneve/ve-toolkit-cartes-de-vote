@@ -1,2 +1,2 @@
-.\bin\generer-certificat.ps1 -outputDir .\certs -baseFilename imprimeur-encrypt -subject /CN=IMPRIMEUR
-.\bin\generer-certificat.ps1 -outputDir .\certs -baseFilename imprimeur-sign -subject /CN=IMPRIMEUR
+.\bin\generer-certificat.ps1 -outputDir .\certs -baseFilename imprimeur-encrypt -subject /CN=IMPRIMEUR -daysOfValidity 365
+.\bin\generer-certificat.ps1 -outputDir .\certs -baseFilename imprimeur-sign -subject /CN=IMPRIMEUR -daysOfValidity 365

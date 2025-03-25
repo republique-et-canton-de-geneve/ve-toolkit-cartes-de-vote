@@ -100,7 +100,7 @@ Ces certificats sont créés à l'aide des deux scripts:
 
 Enfin, les empreintes des certificats sont obtenus à l'aide du script suivant:
 
-- `03-lister-empreintes-certificats.ps1`
+- `03-lister-infos-certificats.ps1`
 
 ### Envoi d'un fichier à l'imprimeur
 

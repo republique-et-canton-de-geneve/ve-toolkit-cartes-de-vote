@@ -19,20 +19,22 @@ Write-Host "Fichier à signer et chiffrer: $inputFilePath"
 $encryptedFilePath = "$inputFilePath.bin"
 $tmp_pem_cert = "extracted_cert.tmp.pem"
 
-# Extract the certificate and private key from the PKCS#12 file
-Write-Host "Conversion du certicat PKCS12 $keystore en PEM $pem_cert"
+# Extract the certificate and private key from the PKCS#12 file to a temporary pem file
+# because openssl cms cannot use a password protected p12 file
+Write-Host "Conversion du certicat PKCS12 $senderKeystore en PEM $tmp_pem_cert"
 openssl pkcs12 -in $senderKeystore -out $tmp_pem_cert -passin file:$senderKeystorePasswordPath -nodes
 
 # Sign and encrypt the file using OpenSSL CMS
 $signedFilePath = "$inputFilePath.der"
 
-
-$thumbprintSender = openssl x509 -in "$tmp_pem_cert" -sha256 -fingerprint -noout
-Write-Host "Signature du fichier $inputFilePath avec $senderKeystore [$thumbprintSender]"
+Write-Host "Signature du fichier $inputFilePath"
+Write-Host "   >>> Informations du certificat de signature"
+& "$PSScriptRoot\infos-certificat.ps1" -certPath $tmp_pem_cert
 openssl cms -sign -binary -nodetach -md sha256 -in $inputFilePath -signer $tmp_pem_cert -nocerts -outform der -out $signedFilePath -keyopt rsa_padding_mode:pss
 
-$thumbprintRecipient = openssl x509 -in "$recipientCertificate" -sha256 -fingerprint -noout
-Write-Host "Chiffrement du fichier $signedFilePath avec le certificat $recipientCertificate [$thumbprintRecipient]"
+Write-Host "Chiffrement du fichier $signedFilePath"
+Write-Host "   >>> Informations du certificat de chiffrement"
+& "$PSScriptRoot\infos-certificat.ps1" -certPath $recipientCertificate
 openssl cms -encrypt -binary -aes-256-gcm -aes256-wrap -in $signedFilePath -inform der -out $encryptedFilePath -outform der -recip $recipientCertificate
 
 # Delete the intermediate files
