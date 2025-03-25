@@ -1,5 +1,4 @@
-# Updated .github/workflows/zip-release.yml
-name: Créer archive pour transmission-signee-chiffree
+name: Create Signed Encrypted Transmission Archive
 
 on:
   release:
@@ -15,15 +14,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Get the version
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
       - name: Zip transmission folder
-        run: zip -r transmission-signee-chiffree.zip transmission-signee-chiffree/
+        run: zip -r transmission-signee-chiffree-${{ steps.get_version.outputs.VERSION }}.zip transmission-signee-chiffree/
 
       - name: Generate SHA256 checksum
-        run: sha256sum transmission-signee-chiffree.zip > transmission-signee-chiffree.zip.sha256
+        run: sha256sum transmission-signee-chiffree-${{ steps.get_version.outputs.VERSION }}.zip > transmission-signee-chiffree-${{ steps.get_version.outputs.VERSION }}.zip.sha256
 
-      - name: Upload Files to release
+      - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            transmission-signee-chiffree.zip
-            transmission-signee-chiffree.zip.sha256
+            transmission-signee-chiffree-${{ steps.get_version.outputs.VERSION }}.zip
+            transmission-signee-chiffree-${{ steps.get_version.outputs.VERSION }}.zip.sha256
