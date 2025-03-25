@@ -13,9 +13,10 @@ param (
     [string]$recipientCertificate
 )
 
-# Define file paths
-Write-Host "Fichier à signer et chiffrer: $inputFilePath"
+$sha256Hash = openssl sha256 -r $inputFilePath | ForEach-Object { $_.Split(' ')[0] }
+Write-Host "Fichier à signer et chiffrer: $inputFilePath, fingerprint sha256=$sha256Hash"
 
+# Define file paths
 $encryptedFilePath = "$inputFilePath.bin"
 $tmp_pem_cert = "extracted_cert.tmp.pem"
 
