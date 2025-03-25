@@ -21,22 +21,9 @@ jobs:
       - name: Generate SHA256 checksum
         run: sha256sum transmission-signee-chiffree.zip > transmission-signee-chiffree.zip.sha256
 
-      - name: Upload ZIP Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Files to release
+        uses: softprops/action-gh-release@v2
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./transmission-signee-chiffree.zip
-          asset_name: transmission-signee-chiffree.zip
-          asset_content_type: application/zip
-
-      - name: Upload Checksum
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./transmission-signee-chiffree.zip.sha256
-          asset_name: transmission-signee-chiffree.zip.sha256
-          asset_content_type: text/plain
+          files: |
+            transmission-signee-chiffree.zip
+            transmission-signee-chiffree.zip.sha256
