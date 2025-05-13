@@ -1,6 +1,6 @@
-# Define parameters
+ï»¿# Define parameters
 param (
-    [Parameter(Mandatory = $true, Position = 0, HelpMessage = "Chemin vers le fichier à signer et chiffrer")]
+    [Parameter(Mandatory = $true, Position = 0, HelpMessage = "Chemin vers le fichier Ã  signer et chiffrer")]
     [string]$inputFilePath,
 
     [Parameter(Mandatory = $true, HelpMessage = "Chemin vers le fichier keystore PKCS#12")]
@@ -14,11 +14,11 @@ param (
 )
 
 $sha256Hash = openssl sha256 -r $inputFilePath | ForEach-Object { $_.Split(' ')[0] }
-Write-Host "Fichier à signer et chiffrer: $inputFilePath, fingerprint sha256=$sha256Hash"
+Write-Host "Fichier Ã  signer et chiffrer: $inputFilePath, fingerprint sha256=$sha256Hash"
 
 # Define file paths
 $encryptedFilePath = "$inputFilePath.bin"
-$tmp_pem_cert = "extracted_cert.tmp.pem"
+$tmp_pem_cert = Join-Path (Split-Path $SenderKeystore -Parent) "extracted_cert.tmp.pem"
 
 # Extract the certificate and private key from the PKCS#12 file to a temporary pem file
 # because openssl cms cannot use a password protected p12 file
@@ -43,4 +43,4 @@ Write-Host "Cleanup."
 Remove-Item -Path $tmp_pem_cert -Force
 Remove-Item -Path $signedFilePath -Force
 
-Write-Host "Fichier signé et chiffré résultant: $encryptedFilePath"
+Write-Host "âœ… Fichier signÃ© et chiffrÃ© rÃ©sultant: $encryptedFilePath" -ForegroundColor Green

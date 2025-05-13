@@ -1,18 +1,18 @@
-# Define parameters
+Ôªø# Define parameters
 param (
-    [Parameter(Mandatory = $true, HelpMessage = "Chemin vers le rÈpertoire contenant les certificats")]
+    [Parameter(Mandatory = $true, HelpMessage = "Chemin vers le r√©pertoire contenant les certificats")]
     [string]$certsDir
 )
 
-# VÈrifier si le rÈpertoire existe
+# V√©rifier si le r√©pertoire existe
 if (Test-Path -Path $certsDir)
 {
-    Write-Host "Informations des certificats contenus dans le rÈpertoire $certsDir"
-    # Lister tous les fichiers PEM dans le rÈpertoire
+    Write-Host "Informations des certificats contenus dans le r√©pertoire $certsDir"
+    # Lister tous les fichiers PEM dans le r√©pertoire
     Get-ChildItem -Path $certsDir -Filter *.pem | ForEach-Object {
         $certPath = $_.FullName
 
-        # VÈrifier qu'on a bien un certificat x509 valide
+        # V√©rifier qu'on a bien un certificat x509 valide
         $output = openssl x509 -in "$certPath" -subject -noout 2>&1
 
         if ($LASTEXITCODE -eq 0)
@@ -24,5 +24,5 @@ if (Test-Path -Path $certsDir)
 }
 else
 {
-    Write-Host "Le rÈpertoire $certsDir n'existe pas."
+    Write-Host "‚ùå Le r√©pertoire $certsDir n'existe pas."
 }

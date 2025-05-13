@@ -1,14 +1,14 @@
-param (
-    [Parameter(Mandatory = $true, Position = 0, HelpMessage = "Chemin vers le fichier ‡ dÈchiffrer et vÈrifier")]
+Ôªøparam (
+    [Parameter(Mandatory = $true, Position = 0, HelpMessage = "Chemin vers le fichier √† d√©chiffrer et v√©rifier")]
     [string]$inputFilePath,
 
-    [Parameter(Mandatory = $true, HelpMessage = "Chemin vers le keystore de dÈchiffrement du destinataire au format PEM")]
+    [Parameter(Mandatory = $true, HelpMessage = "Chemin vers le keystore de d√©chiffrement du destinataire au format PEM")]
     [string]$recipientKeystore,
 
-    [Parameter(Mandatory = $true, HelpMessage = "Chemin vers le fichier contenant le mot de passe pour le keystore de d?chiffrement du destinataire")]
+    [Parameter(Mandatory = $true, HelpMessage = "Chemin vers le fichier contenant le mot de passe pour le keystore de dechiffrement du destinataire")]
     [string]$recipientKeystorePasswordPath,
 
-    [Parameter(Mandatory = $true, HelpMessage = "Chemin vers le certificat public de l'Èmetteur au format PEM")]
+    [Parameter(Mandatory = $true, HelpMessage = "Chemin vers le certificat public de l'√©metteur au format PEM")]
     [string]$senderCertificate
 )
 
@@ -26,7 +26,7 @@ $verifiedFilePath = $basePath -replace ($originalExtension + '$'), "-decrypted$o
 
 # Extract the certificate and private key from the PKCS#12 file to a temporary pem file
 # because openssl cms cannot use a password protected p12 file
-$tmp_pem_cert = "extracted_cert.tmp.pem"
+$tmp_pem_cert = Join-Path (Split-Path $recipientKeystore -Parent) "extracted_cert.tmp.pem"
 Write-Host "Conversion du certicat PKCS12 $recipientKeystore en PEM $tmp_pem_cert"
 $recipientKey = "extracted_recipient_key.tmp.pem"
 openssl pkcs12 -in $recipientKeystore -out $recipientKey -passin file:$recipientKeystorePasswordPath -nodes -nocerts
@@ -35,19 +35,24 @@ openssl pkcs12 -in $recipientKeystore -out $tmp_pem_cert -passin file:$recipient
 
 $decryptedFilePath = [System.IO.Path]::ChangeExtension($encryptedFilePath, ".der")
 
-Write-Host "DÈchiffrement du fichier $inputFilePath"
-Write-Host "   >>> Informations du certificat de dÈchiffrement"
+Write-Host "D√©chiffrement du fichier $inputFilePath"
+Write-Host "   >>> Informations du certificat de d√©chiffrement"
 & "$PSScriptRoot\infos-certificat.ps1" -certPath $tmp_pem_cert
 openssl cms -decrypt -binary -in $inputFilePath -inkey $recipientKey -inform der -out $decryptedFilePath
 
-Write-Host "VÈrification de la signature du fichier $decryptedFilePath"
+Write-Host "V√©rification de la signature du fichier $decryptedFilePath"
 Write-Host "   >>> Informations du certificat de signature"
 & "$PSScriptRoot\infos-certificat.ps1" -certPath $senderCertificate
 openssl cms -verify -binary -in $decryptedFilePath -inform der -out $verifiedFilePath -certfile $senderCertificate -CAfile $senderCertificate
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "‚ùå La v√©rification CMS a √©chou√© !"
+    exit 1
+}
+Write-Host "‚úÖ Signature CMS valide !" -ForegroundColor Green
 
 # Delete intermediate files
 Write-Host "Cleanup."
 Remove-Item -Path $recipientKey -Force
 Remove-Item -Path $decryptedFilePath -Force
 
-Write-Host "Fichier dÈchiffrÈ et vÈrifiÈ: $verifiedFilePath"
+Write-Host "‚úÖ Fichier d√©chiffr√© et v√©rifi√©: $verifiedFilePath" -ForegroundColor Green

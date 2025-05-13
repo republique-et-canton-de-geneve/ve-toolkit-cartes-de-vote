@@ -49,6 +49,38 @@ C ->> LVE: Contrôle des BàT
 
 ```
 
+Par ailleurs, la configuration d'impression des cartes de vote est rendue publique, et sa transmission est faite de manière
+signée entre l'imprimeur et le canton.
+
+```mermaid
+sequenceDiagram
+    autonumber
+
+box PC du Canton - Offline
+Actor C as  Chancellerie
+participant TC as VE Toolkit<br/>Canton
+end
+
+participant PCC as PC du Canton<br/>Online
+participant SAS as SAS Transfert<br/>de fichier
+participant PCI as PC de l'Imprimeur<br/>Online
+
+box PC de l'imprimeur - Offline
+participant TI as VE Toolkit<br/>Imprimeur
+Actor I as  Imprimeur
+end
+
+I ->> TI: Signer le répertoire de configuration d'impression
+I ->> PCI: Transfert du fichier de configuration<br/>signé par clé USB
+
+PCI ->> SAS: Dépôt sur le SAS Internet<br/>du fichier de configuration<br/>signé par clé USB
+
+PCC ->> SAS: Téléchargement du fichier<br/>de configuration signé
+PCC ->> TC: Transfert du fichier de<br/>configuration signé<br/>par clé USB
+C ->> TC: Vérification<br/>de la signature et du hash du fichier<br/>de configuration
+
+```
+
 ## Concept
 
 Un service en ligne chiffré, authentifié et tracé, fourni par le canton de Genève permet:
@@ -90,7 +122,8 @@ Les certificats suivants doivent être générés:
 
 - Un certificat permettant à la Chancellerie de signer les fichiers à destination de l'imprimeur.
 - Un certificat permettant à la Chancellerie de recevoir des fichiers chiffrés à son intention par l'imprimeur.
-- Un certificat permettant à l'imprimeur de signer les fichiers qu'il envoie à la Chancellerie.
+- Un certificat permettant à l'imprimeur de signer les fichiers de bons à tirer qu'il envoie à la Chancellerie.
+- Un certificat permettant à l'imprimeur de signer les fichiers de configuration qu'il envoie à la Chancellerie.
 - Un certificat permettant à l'imprimeur de recevoir des fichiers chiffrés à son intention par la Chancellerie.
 
 Ces certificats sont créés à l'aide des deux scripts:
@@ -114,17 +147,29 @@ La commande suivante permet à l'imprimeur de déchiffrer le fichier reçu et de
 
 `05-reception-Imprimeur.ps1 <chemin vers le fichier reçu>`
 
-### Envoi d'un fichier au canton
+### Envoi d'un fichier BàT au canton
 
 La commande suivante permet à l'imprimeur de signer et chiffrer un fichier à envoyer au canton:
 
 `06-envoi-Imprimeur-GE.ps1 <chemin vers le fichier à envoyer>`
 
-### Réception du fichier par le canton
+### Réception du fichier BàT par le canton
 
 La commande suivante permet au canton de déchiffrer le fichier reçu et de vérifier sa signature:
 
 `07-reception-GE.ps1 <chemin vers le fichier reçu>`
+
+### Envoi du fichier de configuration au canton
+
+La commande suivante permet à l'imprimeur de signer le fichier de configuration à envoyer au canton:
+
+`08-signer-config-Imprimeur.ps1 <chemin vers le répertoire à compresser et signer>`
+
+### Réception du fichier de configuration par le canton
+
+La commande suivante permet au canton de déchiffrer le fichier reçu et de vérifier sa signature:
+
+`09-verifier-config-Imprimeur.ps1 <chemin vers le fichier zip reçu>`
 
 ## Test
 
