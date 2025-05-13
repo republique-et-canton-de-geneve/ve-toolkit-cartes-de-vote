@@ -1,25 +1,25 @@
-# Définition des noms de fichiers
+ï»¿# DÃ©finition des noms de fichiers
 $binaryFileName = "random_binary_file.bin"
 $zipFileName = $args[0]
 
-Write-Host "Création d'un fichier de test binaire et zippé."
+Write-Host "CrÃ©ation d'un fichier de test binaire et zippÃ©."
 
-# Récupérer le chemin du répertoire pour le fichier ZIP
+# RÃ©cupÃ©rer le chemin du rÃ©pertoire pour le fichier ZIP
 $zipDirPath = Split-Path -Path $zipFileName -Parent
 
-# Vérifier si le répertoire existe et le créer si nécessaire
+# VÃ©rifier si le rÃ©pertoire existe et le crÃ©er si nÃ©cessaire
 if (-not (Test-Path -Path $zipDirPath)) {
     New-Item -Path $zipDirPath -ItemType Directory -Force
-    Write-Host "Répertoire créé : $zipDirPath"
+    Write-Host "RÃ©pertoire crÃ©Ã© : $zipDirPath"
 }
 
-# Générer un fichier binaire aléatoire avec OpenSSL
+# GÃ©nÃ©rer un fichier binaire alÃ©atoire avec OpenSSL
 openssl rand -out $binaryFileName 100000000
 
-# Créer un fichier ZIP contenant le fichier binaire
+# CrÃ©er un fichier ZIP contenant le fichier binaire
 Compress-Archive -Path $binaryFileName -DestinationPath $zipFileName -Force
 
 # Supprimer le fichier binaire temporaire
 Remove-Item -Path $binaryFileName
 
-Write-Host "Fichier ZIP créé : $zipFileName"
+Write-Host "Fichier ZIP crÃ©Ã© : $zipFileName"
