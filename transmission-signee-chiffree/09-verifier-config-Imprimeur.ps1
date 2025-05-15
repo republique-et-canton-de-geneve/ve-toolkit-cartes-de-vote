@@ -1,9 +1,7 @@
-﻿$input = $args[0]
-if ([string]::IsNullOrWhiteSpace($input)) {
-    $input = Read-Host -Prompt "Veuillez entrer le chemin du fichier à contrôler"
-}
+﻿. bin\commons.ps1
 
-.\bin\verifier-config.ps1 $input -senderCertificate .\certs\imprimeur-conf-cert.pem
-if ($args[1] -ne "AUTO") {
-    Read-Host -Prompt "Tapez Entree pour continuer..."
-}
+$path = Prompt-Path-If-Empty $args[0] "Veuillez entrer le chemin du fichier à contrôler"
+
+.\bin\verifier-config.ps1 $path -senderCertificate .\certs\imprimeur-conf-cert.pem
+
+Pause $args[1]

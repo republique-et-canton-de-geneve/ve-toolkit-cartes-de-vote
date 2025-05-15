@@ -1,4 +1,5 @@
-﻿.\bin\empreintes-certificats.ps1 -certsDir .\certs\
-if ($args[0] -ne "AUTO") {
-    Read-Host -Prompt "Tapez Entree pour continuer..."
-}
+﻿. bin\commons.ps1
+
+.\bin\empreintes-certificats.ps1 -certsDir .\certs\
+
+Pause $args[0]

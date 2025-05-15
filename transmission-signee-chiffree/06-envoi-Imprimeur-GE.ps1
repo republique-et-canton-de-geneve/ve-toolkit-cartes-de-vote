@@ -1,9 +1,7 @@
-﻿$input = $args[0]
-if ([string]::IsNullOrWhiteSpace($input)) {
-    $input = Read-Host -Prompt "Veuillez entrer le chemin du fichier à signer et chiffrer"
-}
+﻿. bin\commons.ps1
 
-.\bin\signer-chiffrer.ps1 $input -senderKeystore .\certs\imprimeur-sign-keystore.p12 -senderKeystorePasswordPath .\certs\imprimeur-sign-password.txt -recipientCertificate .\certs\ge-encrypt-cert.pem
-if ($args[1] -ne "AUTO") {
-    Read-Host -Prompt "Tapez Entree pour continuer..."
-}
+$path = Prompt-Path-If-Empty $args[0] "Veuillez entrer le chemin du fichier à signer et chiffrer"
+
+.\bin\signer-chiffrer.ps1 $path -senderKeystore .\certs\imprimeur-sign-keystore.p12 -senderKeystorePasswordPath .\certs\imprimeur-sign-password.txt -recipientCertificate .\certs\ge-encrypt-cert.pem
+
+Pause $args[1]
