@@ -39,6 +39,11 @@ Write-Host "Déchiffrement du fichier $inputFilePath"
 Write-Host "   >>> Informations du certificat de déchiffrement"
 & "$PSScriptRoot\infos-certificat.ps1" -certPath $tmp_pem_cert
 openssl cms -decrypt -binary -in $inputFilePath -inkey $recipientKey -inform der -out $decryptedFilePath
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "❌ Le déchiffrement CMS a échoué !"
+    exit 1
+}
+Write-Host "✅ Déchiffrement CMS effectué." -ForegroundColor Green
 
 Write-Host "Vérification de la signature du fichier $decryptedFilePath"
 Write-Host "   >>> Informations du certificat de signature"
